@@ -137,7 +137,7 @@ def correlation_matrix(df: pd.DataFrame) -> pd.DataFrame:
 
 def top_categories(
     df: pd.DataFrame,
-    max_columns: int = 5,
+    max_columns: int = 10,
     top_k: int = 5,
 ) -> Dict[str, pd.DataFrame]:
     """
@@ -194,6 +194,12 @@ def compute_quality_flags(summary: DatasetSummary, missing_df: pd.DataFrame, ori
     if summary.n_rows < 100:
         score -= 0.2
     if summary.n_cols > 100:
+        score -= 0.1
+    if flags["has_duplicate_columns"]:
+        score -= 0.2
+    if flags["has_constant_columns"]:
+        score -= 0.1
+    if flags["has_high_cardinality_categoricals"]:
         score -= 0.1
 
     score = max(0.0, min(1.0, score))
@@ -264,3 +270,17 @@ def has_high_cardinality_categoricals(df: pd.DataFrame) -> bool:
                 return True
     
     return False
+
+def report_title(
+    dataset_name: str, 
+    custom_title: Optional[str] = None,
+) -> str:
+    """
+    Создает заголовок отчета
+    """
+    if custom_title:
+        title = f"# {custom_title}\n\n"
+    else:
+        title = f"# {dataset_name}\n\n"
+    
+    return title
