@@ -55,3 +55,7 @@ logs/
 *.tmp
 *.bak
 *.old
+
+# Папки с отчетами EDA
+reports/
+reports_example/
