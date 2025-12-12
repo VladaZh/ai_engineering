@@ -83,3 +83,41 @@ uv run eda-cli report data/customers.csv \
 ```bash
 uv run pytest -q
 ```
+
+## HTTP API
+
+Проект также предоставляет REST API на базе FastAPI.
+
+### Запуск сервера
+
+```bash
+uv run uvicorn eda_cli.api:app --reload --port 8000
+```
+
+## Эндпоинты
+
+### Проверка работоспособности сервиса.
+
+GET /health
+
+```bash
+curl http://localhost:8000/health
+```
+
+Оценка качества датасета по CSV-файлу.
+
+POST /quality-from-csv
+
+```bash
+curl -F "file=@data/example.csv" http://localhost:8000/quality-from-csv
+```
+
+Возвращает первые N строк датасета.
+
+POST /quality-flags-from-csv
+
+```bash
+curl -F "file=@data/example.csv" http://localhost:8000/quality-flags-from-csv
+```
+
+Возвращает полный набор флагов качества.
