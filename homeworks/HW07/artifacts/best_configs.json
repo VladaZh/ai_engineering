@@ -1,0 +1,25 @@
+{
+    "dataset_01": {
+        "best_model": "kmeans",
+        "params": {
+            "k": 2
+        },
+        "selection_criterion": "highest silhouette score and stability (ARI=1.0)"
+    },
+    "dataset_02": {
+        "best_model": "dbscan",
+        "params": {
+            "eps": 0.1,
+            "min_samples": 10
+        },
+        "selection_criterion": "higher silhouette and robustness to noise/nonlinear structure"
+    },
+    "dataset_03": {
+        "best_model": "dbscan",
+        "params": {
+            "eps": 0.1,
+            "min_samples": 10
+        },
+        "selection_criterion": "much higher silhouette and ability to handle varying cluster density"
+    }
+}
