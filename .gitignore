@@ -59,3 +59,15 @@ logs/
 # Папки с отчетами EDA
 reports/
 reports_example/
+
+**/data/
+**/datasets/
+**/raw/
+*.ubyte
+*.ubyte.gz
+*.idx*
+*.gz
+*.zip
+*.tar
+*.tar.gz
+*.csv.gz
