@@ -1,0 +1,19 @@
+{
+  "experiment": "E4",
+  "architecture": {
+    "hidden_sizes": [
+      512,
+      256
+    ],
+    "dropout": 0.0,
+    "use_bn": true,
+    "optimizer": "Adam",
+    "lr": 0.001,
+    "momentum": 0,
+    "weight_decay": 0
+  },
+  "seed": 42,
+  "dataset": "EMNIST",
+  "num_classes": 47,
+  "best_val_accuracy": 85.2482269503546
+}
