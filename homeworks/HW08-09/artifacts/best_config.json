@@ -1,19 +1,17 @@
 {
-  "experiment": "E4",
-  "architecture": {
-    "hidden_sizes": [
-      512,
-      256
-    ],
-    "dropout": 0.0,
-    "use_bn": true,
-    "optimizer": "Adam",
-    "lr": 0.001,
-    "momentum": 0,
-    "weight_decay": 0
-  },
-  "seed": 42,
   "dataset": "EMNIST",
+  "seed": 42,
+  "model_architecture": "BatchNorm",
+  "input_size": 784,
+  "hidden_sizes": [
+    512,
+    256
+  ],
   "num_classes": 47,
-  "best_val_accuracy": 85.2482269503546
+  "optimizer": "Adam",
+  "lr": 0.001,
+  "batch_size": 128,
+  "epochs_trained": 14,
+  "early_stopping_patience": 5,
+  "best_val_accuracy": 85.25
 }
