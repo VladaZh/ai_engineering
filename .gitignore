@@ -71,3 +71,5 @@ reports_example/
 *.tar
 *.tar.gz
 *.csv.gz
+
+homeworks/HW13/results/
