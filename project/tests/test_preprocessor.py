@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from src.data.preprocessor import DataPreprocessor
+from src.models.preprocessor import DataPreprocessor
 
 
 def test_preprocessor_fit_transform(sample_df, preprocessor):

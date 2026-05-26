@@ -1,16 +1,13 @@
-# tests/conftest.py
 import sys
 from pathlib import Path
 import pytest
 import pandas as pd
 
-# Добавляем корень проекта в sys.path
 project_root = Path(__file__).resolve().parents[1]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-# Теперь импорты работают
-from src.data.preprocessor import DataPreprocessor
+from src.models.preprocessor import DataPreprocessor
 from src.models.classifier import FitnessClassifier
 
 

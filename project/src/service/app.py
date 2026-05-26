@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, field_validator
 from src.models.evaluator import ModelEvaluator
 import yaml
 
-from src.data.preprocessor import DataPreprocessor
+from src.models.preprocessor import DataPreprocessor
 from src.models.classifier import FitnessClassifier
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO").upper())
