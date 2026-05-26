@@ -73,3 +73,4 @@ reports_example/
 *.csv.gz
 
 homeworks/HW13/results/
+artifacts/

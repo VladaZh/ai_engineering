@@ -1,0 +1,28 @@
+data:
+  target_column: is_fit
+  numeric_features:
+    - age
+    - weight_kg
+    - heart_rate
+    - sleep_hours
+    - activity_days_week
+  categorical_features:
+    - smoking
+    - nutrition_quality
+
+model:
+  baseline:
+    type: logistic_regression
+    params:
+      max_iter: 1000
+      random_state: 42
+  improved:
+    type: random_forest
+    params:
+      n_estimators: 100
+      max_depth: 10
+      random_state: 42
+
+training:
+  test_size: 0.2
+  cv_folds: 5
