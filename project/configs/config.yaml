@@ -2,13 +2,13 @@ data:
   target_column: is_fit
   numeric_features:
     - age
+    - height_cm
     - weight_kg
-    - heart_rate
     - sleep_hours
-    - activity_days_week
+    - activity_index
   categorical_features:
-    - smoking
-    - nutrition_quality
+    - smokes
+    - gender
 
 model:
   baseline:

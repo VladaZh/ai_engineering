@@ -1,28 +1,32 @@
 import sys
 from pathlib import Path
+from unittest.mock import Mock, patch
 import pytest
 import pandas as pd
+import numpy as np
+from fastapi.testclient import TestClient
 
 project_root = Path(__file__).resolve().parents[1]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
+from src.service.app import app
 from src.models.preprocessor import DataPreprocessor
 from src.models.classifier import FitnessClassifier
 
 
 @pytest.fixture
 def sample_df():
-    """Create small synthetic dataframe for tests."""
+    """Create small synthetic dataframe for tests with correct columns."""
     return pd.DataFrame(
         {
             "age": [25, 45, 60],
+            "height_cm": [170, 180, 165],
             "weight_kg": [65, 80, 95],
-            "heart_rate": [60, 75, 85],
-            "sleep_hours": [8, 6, 5],
-            "activity_days_week": [5, 3, 1],
-            "smoking": ["no", "yes", "no"],
-            "nutrition_quality": ["high", "medium", "low"],
+            "sleep_hours": [8.0, 6.0, 5.0],
+            "activity_index": [4.5, 3.0, 1.5],
+            "smokes": ["no", "yes", "no"],
+            "gender": ["F", "M", "F"],
             "is_fit": [1, 0, 0],
         }
     )
@@ -34,12 +38,12 @@ def preprocessor(sample_df):
     pp = DataPreprocessor(
         numeric_features=[
             "age",
+            "height_cm",
             "weight_kg",
-            "heart_rate",
             "sleep_hours",
-            "activity_days_week",
+            "activity_index",
         ],
-        categorical_features=["smoking", "nutrition_quality"],
+        categorical_features=["smokes", "gender"],
     )
     pp.fit(sample_df)
     return pp
@@ -62,3 +66,18 @@ def mock_model():
     mock.predict.return_value = np.array([1, 0, 1])
     mock.predict_proba.return_value = np.array([[0.1, 0.9], [0.8, 0.2], [0.3, 0.7]])
     return mock
+
+
+@pytest.fixture
+def client():
+    """TestClient with mocked model dependencies."""
+    with patch("src.service.app.model") as mock_model, patch(
+        "src.service.app.preprocessor"
+    ) as mock_prep:
+
+        mock_prep.transform.return_value = [[0.1, 0.2, 0.3]]
+        mock_model.predict.return_value = [1]
+        mock_model.predict_proba.return_value = [[0.3, 0.7]]
+
+        with TestClient(app) as c:
+            yield c

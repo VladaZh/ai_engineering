@@ -18,7 +18,7 @@
 
 ```bash
 cd project
-pytest tests
+python -m pytest tests/ -v  
 ```
 
 Наличие даже простых тестов поможет избежать «ломающих» изменений перед защитой.
