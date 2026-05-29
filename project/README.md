@@ -90,7 +90,7 @@ source .venv/bin/activate
 jupyter execute notebooks/01_eda_baseline.ipynb
 ```
 
-или
+или, если датасет загружен:
 
 ```bash
 cd project
