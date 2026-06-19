@@ -1,6 +1,7 @@
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 import pytest
 import pandas as pd
 import numpy as np
@@ -69,15 +70,22 @@ def mock_model():
 
 
 @pytest.fixture
-def client():
+def client(mock_model):
     """TestClient with mocked model dependencies."""
-    with patch("src.service.app.model") as mock_model, patch(
-        "src.service.app.preprocessor"
-    ) as mock_prep:
+    mock_prep = Mock()
+    mock_prep.transform.return_value = np.array([[0.1, 0.2, 0.3]])
 
-        mock_prep.transform.return_value = [[0.1, 0.2, 0.3]]
-        mock_model.predict.return_value = [1]
-        mock_model.predict_proba.return_value = [[0.3, 0.7]]
+    mock_model.predict.return_value = np.array([1])
+    mock_model.predict_proba.return_value = np.array([[0.3, 0.7]])
 
-        with TestClient(app) as c:
-            yield c
+    @asynccontextmanager
+    async def mock_lifespan(app):
+        from src.service import app as app_module
+        app_module.model = mock_model
+        app_module.preprocessor = mock_prep
+        yield
+
+    app.router.lifespan_context = mock_lifespan
+
+    with TestClient(app) as c:
+        yield c

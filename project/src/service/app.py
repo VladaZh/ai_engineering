@@ -2,11 +2,10 @@ import os
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
-import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, field_validator
-import yaml
+import joblib
 
 from src.models.preprocessor import DataPreprocessor
 from src.models.classifier import FitnessClassifier
@@ -68,38 +67,34 @@ def preprocess_real_dataset(df: pd.DataFrame) -> pd.DataFrame:
 async def lifespan(app: FastAPI):
     global preprocessor, model
 
-    data_path = project_root / "data" / "fitness_dataset.csv"
+    model_path = Path(os.getenv("MODEL_PATH", "artifacts/fitness_model.pkl"))
+    preprocessor_path = Path(os.getenv("PREPROCESSOR_PATH", "artifacts/preprocessor.pkl"))
 
-    if not data_path.exists():
-        logger.error(
-            f"Real dataset not found at {data_path}. Please download it first."
-        )
+    if not model_path.exists():
+        logger.error(f"Model not found at {model_path}. Run train.py first!")
         yield
         return
 
-    df = pd.read_csv(data_path)
-    df = preprocess_real_dataset(df)
+    if not preprocessor_path.exists():
+        logger.error(f"Preprocessor not found at {preprocessor_path}. Run train.py first!")
+        yield
+        return
 
-    with open("configs/config.yaml") as f:
-        config = yaml.safe_load(f)
+    logger.info(f"Loading model from {model_path}")
+    model = FitnessClassifier().load(str(model_path))
+    logger.info(f"Model loaded | type={type(model.model).__name__}")
 
-    model_config = config["model"]["improved"]
-    model_type = model_config["type"]
-    model_params = model_config.get("params", {})
+    logger.info(f"Loading preprocessor from {preprocessor_path}")
+    preprocessor = joblib.load(str(preprocessor_path))
 
-    preprocessor = DataPreprocessor(
-        numeric_features=ALLOWED_NUMERIC,
-        categorical_features=ALLOWED_CATEGORICAL,
-        target_column=TARGET_COLUMN,
-    )
-    X = preprocessor.fit_transform(df)
-    y = df[TARGET_COLUMN].values
+    if not preprocessor._is_fitted:
+        logger.error("Loaded preprocessor is not fitted!")
+        yield
+        return
 
-    model = FitnessClassifier(model_type=model_type, **model_params)
-    model.fit(X, y)
-    model.save(os.getenv("MODEL_PATH", "artifacts/fitness_model.pkl"))
+    logger.info(f"Preprocessor loaded | is_fitted={preprocessor._is_fitted}")
+    logger.info("Service started successfully")
 
-    logger.info("Service started with trained model")
     yield
     logger.info("Service shutting down")
 

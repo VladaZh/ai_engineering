@@ -2,15 +2,13 @@ import sys
 import logging
 import json
 from pathlib import Path
-from typing import Dict, Any
+import joblib
 
-import numpy as np
 import pandas as pd
 
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -53,7 +51,6 @@ def train_pipeline(output_dir: Path | None = None) -> int:
 
     df = pd.read_csv(project_root / "data" / "fitness_dataset.csv")
 
-    # 2. Фильтрация признаков и препроцессинг
     numeric_features = [f for f in ALLOWED_NUMERIC if f in df.columns]
     categorical_features = [f for f in ALLOWED_CATEGORICAL if f in df.columns]
 
@@ -68,7 +65,7 @@ def train_pipeline(output_dir: Path | None = None) -> int:
     )
     logger.info(f"Split: Train={len(X_train)}, Test={len(X_test)}")
 
-    # 3. Обучение Baseline
+    # Обучение Baseline
     logger.info("Training Baseline: Logistic Regression")
     baseline = LogisticRegression(max_iter=1000, random_state=RANDOM_STATE)
     baseline.fit(X_train, y_train)
@@ -77,7 +74,7 @@ def train_pipeline(output_dir: Path | None = None) -> int:
     metrics_base = ModelEvaluator.evaluate(y_test, y_pred_base, y_proba_base)
     logger.info(f"Baseline metrics: {metrics_base}")
 
-    # 4. Обучение Improved
+    # Обучение Improved
     logger.info("Training Improved: Random Forest")
     rf = RandomForestClassifier(
         n_estimators=100, max_depth=10, random_state=RANDOM_STATE, n_jobs=-1
@@ -88,11 +85,11 @@ def train_pipeline(output_dir: Path | None = None) -> int:
     metrics_rf = ModelEvaluator.evaluate(y_test, y_pred_rf, y_proba_rf)
     logger.info(f"RF metrics: {metrics_rf}")
 
-    # 5. Выбор лучшей модели
+    # Выбор лучшей модели
     base_score = metrics_base.get(METRIC_FOR_SELECTION, 0)
     rf_score = metrics_rf.get(METRIC_FOR_SELECTION, 0)
 
-    if rf_score >= base_score:
+    if rf_score > base_score:
         best_type = "random_forest"
         best_metrics = metrics_rf
         logger.info(f"Selected Random Forest ({METRIC_FOR_SELECTION}={rf_score:.4f})")
@@ -121,7 +118,11 @@ def train_pipeline(output_dir: Path | None = None) -> int:
     clf.save(str(model_path))
     logger.info(f"Model saved to {model_path}")
 
-    # 7. Сохранение метрик в JSON
+    preprocessor_path = artifacts_dir / "preprocessor.pkl"
+    joblib.dump(preprocessor, str(preprocessor_path))
+    logger.info(f"Preprocessor saved to {preprocessor_path}")
+
+    # Сохранение метрик в JSON
     metrics_path = artifacts_dir / "training_metrics.json"
     report = {
         "best_model": best_type,

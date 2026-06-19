@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from typing import List, Optional
+from typing import List
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
